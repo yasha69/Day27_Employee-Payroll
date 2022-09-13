@@ -1,42 +1,72 @@
 package com.bridgelabz;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
-import java.util.Scanner;
 
 public class EmployPayrollService {
 
-    private List<EmployPayrollData> employPayrollDataList;
+    static List<EmployPayrollData> employList;
 
-    public EmployPayrollService() {                                //default constructor
+    public enum IOServices{
+        CONSOLE_IO, FILE_IO
     }
 
-    public EmployPayrollService(ArrayList<EmployPayrollData> employPayrollDataList) {       //parameterized constructor
-        this.employPayrollDataList =employPayrollDataList;
+    /**
+     *Default constructor
+     */
+    public EmployPayrollService() {
     }
-    public static void main(String[] args) {
-        Scanner sc1 = new Scanner(System.in);
-        ArrayList<EmployPayrollData> employPayrollDataList = new ArrayList<>();
-        EmployPayrollService  employPayrollService = new EmployPayrollService(employPayrollDataList);
-        employPayrollService.readEmployPayrollData(sc1);
-        employPayrollService.writeEmployPayrollData();
+
+    /**
+     * parameterized constructor
+     * @param employList
+     */
+    public EmployPayrollService(List<EmployPayrollData> employList) {
+        this.employList =employList;
     }
     //    create write method to print data back to console
-    private void writeEmployPayrollData(){
-//        print the employee data stored in employPayrollDataList
-        System.out.println("Writing EmployPayrollData: " + employPayrollDataList);
+    public boolean writeEmployPayrollData(IOServices ioServices){
+        PayrollService payrollService = getEmployeePayrollObject(ioServices);
+        try {
+            return payrollService.writePayrollData(employList);
+        } catch (IOException e) {
+            System.out.println("catch block" + e);
+        }
+        return false;
+    }
+    public void readEmployPayrollData(IOServices ioServices) {
+        PayrollService payrollService = getEmployeePayrollObject(ioServices);
+        try {
+            payrollService.readPayrollData();
+        } catch (IOException e) {
+            System.out.println("catch block" + e);
+        }
+    }
+    public long countEntries(IOServices ioServices) {
+        PayrollService payrollService = getEmployeePayrollObject(ioServices);
+        try {
+            return payrollService.countEntries();
+        } catch (IOException e) {
+            System.out.println("catch block" + e);
+        }
+        return 0;
+    }
+    private static PayrollService getEmployeePayrollObject(IOServices ioServices){
+        PayrollService payrollService = null;
+        if(IOServices.FILE_IO.equals(ioServices))
+            payrollService = new FileIOPayrollService();
+        else if(IOServices.CONSOLE_IO.equals(ioServices))
+            payrollService = new ConsoleIOPayrollService();
+        return payrollService;
     }
 
     //    method to read the input from user through console
-    private void readEmployPayrollData(Scanner sc1){
-        System.out.println("Enter your name: ");
-        String name = sc1.nextLine();
-        System.out.println("Enter your Id: ");
-        int id = sc1.nextInt();
-        System.out.println("Enter your salary: ");
-        double salary = sc1.nextDouble();
-        EmployPayrollData empData = new EmployPayrollData(id, salary, name);
-//    adding all employee data to the arraylist
-        employPayrollDataList.add(empData);
+    public static void main(String[] args) {
+        EmployPayrollService employPayrollService = new EmployPayrollService();
+        employPayrollService.readEmployPayrollData(IOServices.CONSOLE_IO);
+        employPayrollService.writeEmployPayrollData(IOServices.CONSOLE_IO);
+        long count= employPayrollService.countEntries(IOServices.CONSOLE_IO);
+//        Show FileIO count no of entries.
+        System.out.println(count);
     }
 }
