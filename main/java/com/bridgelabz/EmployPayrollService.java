@@ -22,17 +22,16 @@ public class EmployPayrollService {
      * @param employList
      */
     public EmployPayrollService(List<EmployPayrollData> employList) {
-        this.employList =employList;
+        EmployPayrollService.employList =employList;
     }
     //    create write method to print data back to console
-    public boolean writeEmployPayrollData(IOServices ioServices){
+    public void writeEmployPayrollData(IOServices ioServices){
         PayrollService payrollService = getEmployeePayrollObject(ioServices);
         try {
-            return payrollService.writePayrollData(employList);
+            payrollService.writePayrollData(employList);
         } catch (IOException e) {
             System.out.println("catch block" + e);
         }
-        return false;
     }
     public void readEmployPayrollData(IOServices ioServices) {
         PayrollService payrollService = getEmployeePayrollObject(ioServices);
@@ -68,5 +67,12 @@ public class EmployPayrollService {
         long count= employPayrollService.countEntries(IOServices.CONSOLE_IO);
 //        Show FileIO count no of entries.
         System.out.println(count);
+        FileIOPayrollService fileIOPayrollService = new FileIOPayrollService();
+        try {
+            List<String> list= fileIOPayrollService.readData();
+            System.out.println(list);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
